@@ -8,10 +8,11 @@ import com.myapps.ws.mobilespringappws.io.entity.UserEntity;
 import com.myapps.ws.mobilespringappws.io.repositories.UserRepository;
 import com.myapps.ws.mobilespringappws.service.UserService;
 import com.myapps.ws.mobilespringappws.shared.Utils;
-import com.myapps.ws.mobilespringappws.shared.dto.UserDto;
+import com.myapps.ws.mobilespringappws.shared.dto.AddressDTO;
+import com.myapps.ws.mobilespringappws.shared.dto.UserDTO;
 import com.myapps.ws.mobilespringappws.ui.model.response.ErrorMessages;
 
-import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.pbkdf2.Pack;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,13 +37,21 @@ public class UserServiceImpl implements UserService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public UserDto createUser(UserDto user) {
+    public UserDTO createUser(UserDTO user) {
 
         if (userRepository.findByEmail(user.getEmail()) != null)
             throw new RuntimeException("Record already exists!");
 
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        for(int i=0; i<user.getAddresses().size(); i++) {
+            AddressDTO address = user.getAddresses().get(i);
+            address.setUserDetails(user);
+            address.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, address);
+        }
+
+        ModelMapper modelMapper =  new ModelMapper();            
+        // BeanUtils.copyProperties(user, userEntity);
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String publicUserId = utils.generateUserId(30);
         userEntity.setUserId(publicUserId);
@@ -50,8 +59,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
+        // BeanUtils.copyProperties(storedUserDetails, returnValue);
+        UserDTO returnValue = modelMapper.map(storedUserDetails, UserDTO.class);
 
         return returnValue;
     }
@@ -67,11 +76,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUser(String email) {
+    public UserDTO getUser(String email) {
 
         UserEntity userEntity = userRepository.findByEmail(email);
 
-        UserDto returnValue = new UserDto();
+        UserDTO returnValue = new UserDTO();
         if (userEntity == null)
             throw new UsernameNotFoundException(email);
         BeanUtils.copyProperties(userEntity, returnValue);
@@ -80,8 +89,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserByUserId(String userId) {
-        UserDto returnValue = new UserDto();
+    public UserDTO getUserByUserId(String userId) {
+        UserDTO returnValue = new UserDTO();
 
         UserEntity userEntity = userRepository.findByUserId(userId);
         if (userEntity == null)
@@ -93,9 +102,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(String userId, UserDto user) {
+    public UserDTO updateUser(String userId, UserDTO user) {
 
-        UserDto returnValue = new UserDto();
+        UserDTO returnValue = new UserDTO();
         UserEntity userEntity = userRepository.findByUserId(userId);
 
         if (userEntity == null)
@@ -121,9 +130,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(int page, int limit) {
+    public List<UserDTO> getUsers(int page, int limit) {
 
-        List<UserDto> returnValue = new ArrayList<>();
+        List<UserDTO> returnValue = new ArrayList<>();
 
         if(page>0) page = page-1;
 
@@ -132,7 +141,7 @@ public class UserServiceImpl implements UserService {
         List<UserEntity> users = usersPage.getContent();
 
         for(UserEntity userEntity : users) {
-            UserDto userDto = new UserDto();
+            UserDTO userDto = new UserDTO();
             BeanUtils.copyProperties(userEntity, userDto);
             returnValue.add(userDto);
         }

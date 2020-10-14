@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myapps.ws.mobilespringappws.SpringApplicationContext;
 import com.myapps.ws.mobilespringappws.service.UserService;
-import com.myapps.ws.mobilespringappws.shared.dto.UserDto;
+import com.myapps.ws.mobilespringappws.shared.dto.UserDTO;
 import com.myapps.ws.mobilespringappws.ui.model.request.UserLoginRequestModel;
 
 import io.jsonwebtoken.Jwts;
@@ -64,7 +64,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
                 .compact();
         UserService userService = (UserService)SpringApplicationContext.getBean("userServiceImpl");
-        UserDto userDto = userService.getUser(userName);
+        UserDTO userDto = userService.getUser(userName);
         
         res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
         res.addHeader("UserID", userDto.getUserId());

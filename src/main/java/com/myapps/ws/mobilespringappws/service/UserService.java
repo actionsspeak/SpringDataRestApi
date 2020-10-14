@@ -2,20 +2,20 @@ package com.myapps.ws.mobilespringappws.service;
 
 import java.util.List;
 
-import com.myapps.ws.mobilespringappws.shared.dto.UserDto;
+import com.myapps.ws.mobilespringappws.shared.dto.UserDTO;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService extends UserDetailsService {
-    UserDto createUser(UserDto user);
+    UserDTO createUser(UserDTO user);
 
-    UserDto getUser(String email);
+    UserDTO getUser(String email);
 
-    UserDto getUserByUserId(String userId);
+    UserDTO getUserByUserId(String userId);
 
-    UserDto updateUser(String userId, UserDto user);
+    UserDTO updateUser(String userId, UserDTO user);
 
     void deleteUser(String userId);
 
-    List<UserDto> getUsers(int page, int limit);
+    List<UserDTO> getUsers(int page, int limit);
 }
