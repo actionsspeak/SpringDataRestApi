@@ -10,10 +10,10 @@
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.myapps.ws</groupId>
-	<artifactId>SpringDataRestApi</artifactId>
+	<artifactId>mobile-app-ws</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>SpringDataRestApi</name>
+	<packaging>war</packaging>
+	<name>mobile-app-ws</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -54,6 +54,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
