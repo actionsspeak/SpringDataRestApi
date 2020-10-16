@@ -117,7 +117,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity updtedUserDetails = userRepository.save(userEntity);
 
-        BeanUtils.copyProperties(updtedUserDetails, returnValue);
+        // BeanUtils.copyProperties(updtedUserDetails, returnValue);
+        returnValue = new ModelMapper().map(updtedUserDetails, UserDTO.class);
 
         return returnValue;
     }
@@ -141,10 +142,12 @@ public class UserServiceImpl implements UserService {
         Pageable pageableRequest = PageRequest.of(page, limit);
         Page<UserEntity> usersPage = userRepository.findAll(pageableRequest);
         List<UserEntity> users = usersPage.getContent();
+        ModelMapper modelMapper = new ModelMapper();
 
         for(UserEntity userEntity : users) {
             UserDTO userDto = new UserDTO();
-            BeanUtils.copyProperties(userEntity, userDto);
+            // BeanUtils.copyProperties(userEntity, userDto);
+            userDto = modelMapper.map(userEntity, UserDTO.class);
             returnValue.add(userDto);
         }
 
