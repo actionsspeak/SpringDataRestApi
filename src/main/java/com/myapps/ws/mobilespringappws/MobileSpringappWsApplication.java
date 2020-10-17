@@ -1,6 +1,7 @@
 package com.myapps.ws.mobilespringappws;
 
 import com.myapps.ws.mobilespringappws.security.AppProperties;
+import com.myapps.ws.mobilespringappws.shared.AmazonSES;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +25,11 @@ public class MobileSpringappWsApplication extends SpringBootServletInitializer {
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AmazonSES getAmazonSES() {
+		return new AmazonSES();
 	}
 
 	@Bean

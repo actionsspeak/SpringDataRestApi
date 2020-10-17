@@ -7,6 +7,7 @@ import com.myapps.ws.mobilespringappws.exceptions.UserServiceException;
 import com.myapps.ws.mobilespringappws.io.entity.UserEntity;
 import com.myapps.ws.mobilespringappws.io.repositories.UserRepository;
 import com.myapps.ws.mobilespringappws.service.UserService;
+import com.myapps.ws.mobilespringappws.shared.AmazonSES;
 import com.myapps.ws.mobilespringappws.shared.Utils;
 import com.myapps.ws.mobilespringappws.shared.dto.AddressDTO;
 import com.myapps.ws.mobilespringappws.shared.dto.UserDTO;
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    AmazonSES amazonSES;
+
     @Override
     public UserDTO createUser(UserDTO user) {
 
@@ -63,6 +67,9 @@ public class UserServiceImpl implements UserService {
 
         // BeanUtils.copyProperties(storedUserDetails, returnValue);
         UserDTO returnValue = modelMapper.map(storedUserDetails, UserDTO.class);
+
+        // Send an email message to user to verify their email address
+		// amazonSES.verifyEmail(returnValue); //Amazon SES commented. Need to have the SES configured prior using this
 
         return returnValue;
     }
