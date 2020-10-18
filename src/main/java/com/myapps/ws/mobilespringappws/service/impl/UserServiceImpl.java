@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.myapps.ws.mobilespringappws.exceptions.UserServiceException;
+import com.myapps.ws.mobilespringappws.io.entity.PasswordResetTokenEntity;
 import com.myapps.ws.mobilespringappws.io.entity.UserEntity;
+import com.myapps.ws.mobilespringappws.io.repositories.PasswordResetTokenRepository;
 import com.myapps.ws.mobilespringappws.io.repositories.UserRepository;
 import com.myapps.ws.mobilespringappws.service.UserService;
 import com.myapps.ws.mobilespringappws.shared.AmazonSES;
@@ -30,6 +32,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Autowired
     Utils utils;
@@ -186,5 +191,67 @@ public class UserServiceImpl implements UserService {
 
         return returnValue;
 	}
+
+    @Override
+    public boolean requestPasswordReset(String email) {
+
+        boolean returnValue = false;
+        
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if (userEntity == null) {
+            return returnValue;
+        }
+        
+        String token = new Utils().generatePasswordResetToken(userEntity.getUserId());
+        
+        PasswordResetTokenEntity passwordResetTokenEntity = new PasswordResetTokenEntity();
+        passwordResetTokenEntity.setToken(token);
+        passwordResetTokenEntity.setUserDetails(userEntity);
+        passwordResetTokenRepository.save(passwordResetTokenEntity);
+        
+        // Commented below line as AmozonSES is required to be pre configured for sending out email
+/*         returnValue = new AmazonSES().sendPasswordResetRequest(
+                userEntity.getFirstName(), 
+                userEntity.getEmail(),
+                token); */
+        
+        //Hardcoding the return value here to true, since we the above email generation is not available now.
+        //return returnValue;
+        return true;
+    }
     
+    @Override
+	public boolean resetPassword(String token, String password) {
+        boolean returnValue = false;
+        
+        if( Utils.hasTokenExpired(token) )
+        {
+            return returnValue;
+        }
+ 
+        PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepository.findByToken(token);
+
+        if (passwordResetTokenEntity == null) {
+            return returnValue;
+        }
+
+        // Prepare new password
+        String encodedPassword = bCryptPasswordEncoder.encode(password);
+        
+        // Update User password in database
+        UserEntity userEntity = passwordResetTokenEntity.getUserDetails();
+        userEntity.setEncryptedPassword(encodedPassword);
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+ 
+        // Verify if password was saved successfully
+        if (savedUserEntity != null && savedUserEntity.getEncryptedPassword().equalsIgnoreCase(encodedPassword)) {
+            returnValue = true;
+        }
+   
+        // Remove Password Reset token from database
+        passwordResetTokenRepository.delete(passwordResetTokenEntity);
+        
+        return returnValue;
+	}
 }
