@@ -11,6 +11,9 @@ import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
 import com.myapps.ws.mobilespringappws.shared.dto.UserDTO;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class AmazonSES {
 
     // This address must be verified with Amazon SES.
